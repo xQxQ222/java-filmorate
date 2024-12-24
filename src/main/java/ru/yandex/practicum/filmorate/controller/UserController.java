@@ -43,7 +43,7 @@ public class UserController {
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
-        if (users.containsKey(user.getId())) {
+        if (!users.containsKey(user.getId())) {
             log.error("Пользователя с данным id не существует", new NotFoundException("Пользователя с данным id не существует"));
             throw new NotFoundException("Пользователя с данным id не существует");
         }
