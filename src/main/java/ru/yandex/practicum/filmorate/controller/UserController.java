@@ -18,16 +18,19 @@ import java.util.Map;
 public class UserController {
 
     private final Map<Integer, User> users = new HashMap<>();
+    private int usersCounter = 0;
 
     @GetMapping
     public Collection<User> findAll() {
+        log.info("Пришел Get запрос /users");
         return users.values();
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
+        log.info("пришел Post запрос /users с телом: {}", user);
         if (!isUserValid(user)) {
-            log.error("Неверно указан один из параметров пользователя", new ValidationException("Неверно указан один из параметров пользователя"));
+            log.error("Неверно указан один из параметров пользователя: {}", user);
             throw new ValidationException("Неверно указан один из параметров пользователя");
         }
         if (user.getName() == null || user.getName().isBlank()) {
@@ -37,18 +40,19 @@ public class UserController {
         user.setId(getNextId());
         log.debug("Получен новый id пользователя: {}", user.getId());
         users.put(user.getId(), user);
-        log.info("Добавлен новый пользователь с id {}", user.getId());
+        log.info("Отправлен ответ Post /users с телом: {}", user);
         return user;
     }
 
     @PutMapping
     public User update(@Valid @RequestBody User user) {
+        log.info("пришел Put запрос /users с телом: {}", user);
         if (!users.containsKey(user.getId())) {
-            log.error("Пользователя с данным id не существует", new NotFoundException("Пользователя с данным id не существует"));
+            log.error("Пользователя с id = {} не существует", user.getId());
             throw new NotFoundException("Пользователя с данным id не существует");
         }
         if (!isUserValid(user)) {
-            log.error("Неверно указан один из параметров пользователя", new ValidationException("Неверно указан один из параметров пользователя"));
+            log.error("Неверно указан один из параметров пользователя: {}", user);
             throw new ValidationException("Неверно указан один из параметров пользователя");
         }
         if (user.getName().isBlank()) {
@@ -56,7 +60,7 @@ public class UserController {
             log.debug("Пустое имя пользователя заменено на значение логина: {}", user.getLogin());
         }
         users.put(user.getId(), user);
-        log.info("Пользователь с id {} обновлен", user.getId());
+        log.info("Отправлен Put запрос /users с телом: {}", user);
         return user;
     }
 
@@ -66,11 +70,6 @@ public class UserController {
     }
 
     private int getNextId() {
-        int currentMaxId = users.keySet()
-                .stream()
-                .mapToInt(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+        return ++usersCounter;
     }
 }

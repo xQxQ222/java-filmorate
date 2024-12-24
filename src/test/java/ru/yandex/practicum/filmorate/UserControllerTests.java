@@ -21,14 +21,15 @@ public class UserControllerTests {
     @Test
     public void checkGetFilms() {
         assertEquals(0, userController.findAll().size());
-        User user = new User("test@yandex.ru", "kopatych", LocalDate.of(2000, 1, 1));
+        User user = new User("test@yandex.ru", LocalDate.of(2000, 1, 1));
+        user.setLogin("kopatych");
         User createdUser = userController.create(user);
         assertEquals(1, userController.findAll().size());
     }
 
     @Test
     public void checkFilmValidation() {
-        User user = new User("test@yandex.ru", "kopatych", LocalDate.of(2000, 1, 1));
+        User user = new User("test@yandex.ru", LocalDate.of(2000, 1, 1));
         user.setLogin("kopatych s probelom");
         assertThrows(ValidationException.class, () -> userController.create(user));
         user.setLogin("kopatych");

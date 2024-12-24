@@ -12,9 +12,9 @@ import java.time.LocalDate;
 @Setter
 @EqualsAndHashCode(of = {"id"})
 @RequiredArgsConstructor
+@ToString
 public class Film {
     private int id;
-    @NonNull
     @NotBlank
     private String name;
     private String description;

@@ -22,14 +22,16 @@ public class FilmControllerTests {
     @Test
     public void checkGetFilms() {
         assertEquals(0, filmController.findAll().size());
-        Film film = new Film("Интерстеллар", LocalDate.of(2014, 11, 7), Duration.ofMinutes(169));
+        Film film = new Film(LocalDate.of(2014, 11, 7), Duration.ofMinutes(169));
+        film.setName("Интерстеллар");
         Film createdFilm = filmController.create(film);
         assertEquals(1, filmController.findAll().size());
     }
 
     @Test
     public void checkFilmValidation() {
-        Film film = new Film("Интерстеллар", LocalDate.of(2014, 11, 7), Duration.ofMinutes(169));
+        Film film = new Film(LocalDate.of(2014, 11, 7), Duration.ofMinutes(169));
+        film.setName("Интерстеллар");
         film.setDescription("ааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааа");//здесь 201 символ в описании
         assertThrows(ValidationException.class, () -> filmController.create(film));
         film.setDescription("1");

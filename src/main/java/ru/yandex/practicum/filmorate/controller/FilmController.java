@@ -18,16 +18,19 @@ public class FilmController {
 
     private static final LocalDate MIN_FILM_DATE = LocalDate.of(1895, 12, 28);
     private final Map<Integer, Film> films = new HashMap<>();
+    private int filmCounter = 0;
 
     @GetMapping
     public Collection<Film> findAll() {
+        log.info("Пришел Get запрос /films");
         return films.values();
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
+        log.info("пришел Post запрос /films с телом: {}", film);
         if (!isFilmValid(film)) {
-            log.error("Неверно указан один из параметров фильма", new ValidationException("Неверно указан один из параметров фильма"));
+            log.error("Неверно указан один из параметров фильма: {}", film);
             throw new ValidationException("Неверно указан один из параметров фильма");
         }
         film.setDuration(Duration.ofMinutes(film.getDuration().getSeconds()));
@@ -35,24 +38,25 @@ public class FilmController {
         film.setId(getNextId());
         log.debug("Получен новый id фильма: {}", film.getId());
         films.put(film.getId(), film);
-        log.info("Фильм {} добавлен в коллекцию с id: {}", film.getName(), film.getId());
+        log.info("Отправлен ответ Post /films с телом: {}", film);
         return film;
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
+        log.info("пришел Put запрос /films с телом: {}", film);
         if (!films.containsKey(film.getId())) {
-            log.error("Фильма с данным id не существует", new NotFoundException("Фильма с данным id не существует"));
+            log.error("Фильма с id = {} не существует", film.getId());
             throw new NotFoundException("Фильма с данным id не существует");
         }
         if (!isFilmValid(film)) {
-            log.error("Неверно указан один из параметров фильма", new ValidationException("Неверно указан один из параметров фильма"));
+            log.error("Неверно указан один из параметров фильма: {}", film);
             throw new ValidationException("Неверно указан один из параметров фильма");
         }
         film.setDuration(Duration.ofMinutes(film.getDuration().getSeconds()));
         log.debug("Длительность фильма изменена на минуты");
         films.put(film.getId(), film);
-        log.info("Фильм с id: {} изменен", film.getId());
+        log.info("Отправлен Put запрос /films с телом: {}", film);
         return film;
     }
 
@@ -63,11 +67,6 @@ public class FilmController {
     }
 
     private int getNextId() {
-        int currentMaxId = films.keySet()
-                .stream()
-                .mapToInt(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+        return ++filmCounter;
     }
 }
