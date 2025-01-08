@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @EqualsAndHashCode(of = {"id"})
 @Getter
@@ -21,4 +23,5 @@ public class User {
     private String name;
     @NonNull
     private LocalDate birthday;
+    private Set<Integer> friends = new HashSet<>();
 }
