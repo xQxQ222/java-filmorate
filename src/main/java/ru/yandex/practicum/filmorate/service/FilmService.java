@@ -13,8 +13,6 @@ import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
 import java.util.*;
 
-import static java.util.stream.Collectors.toList;
-
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
