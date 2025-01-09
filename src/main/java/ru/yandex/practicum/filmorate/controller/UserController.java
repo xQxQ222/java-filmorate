@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -26,6 +27,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping
     public Collection<User> findAll() {
         log.info("Пришел GET запрос /users");
@@ -34,6 +36,7 @@ public class UserController {
         return users;
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{userId}/friends")
     public List<User> getUserFriends(@PathVariable int userId) {
         log.info("Пришел GET запрос /users/{}", userId);
@@ -42,6 +45,7 @@ public class UserController {
         return userFriends;
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{userId}/friends/{otherId}")
     public List<User> getCommonFriends(@PathVariable int userId, @PathVariable int otherId) {
         log.info("Пришел GET запрос /user/{}/friends/{}", userId, otherId);
@@ -50,6 +54,7 @@ public class UserController {
         return commonFriends;
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{userId}")
     public User getUserById(@PathVariable int userId) {
         log.info("пришел GET запрос /users/{}", userId);
@@ -58,6 +63,7 @@ public class UserController {
         return user;
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.info("пришел POST запрос /users с телом: {}", user);
@@ -66,6 +72,7 @@ public class UserController {
         return newUser;
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         log.info("пришел PUT запрос /users с телом: {}", user);
@@ -74,6 +81,7 @@ public class UserController {
         return updatedUser;
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{userId}/friends/{friendId}")
     public User addFriend(@PathVariable int userId, @PathVariable int friendId) {
         log.info("Пришел PUT запрос /users/{}/friends/{}", userId, friendId);
@@ -82,6 +90,7 @@ public class UserController {
         return userWithFriend;
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{userId}/friends/{friendId}")
     public User deleteFriend(@PathVariable int userId, @PathVariable int friendId) {
         log.info("Пришел DELETE запрос /users/{}/friends/{}", userId, friendId);
