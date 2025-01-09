@@ -69,7 +69,7 @@ public class UserController {
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         log.info("пришел PUT запрос /users с телом: {}", user);
-        User updatedUser = userStorage.updateUser(user.getId());
+        User updatedUser = userStorage.updateUser(user);
         log.info("Отправлен Put запрос /users с телом: {}", updatedUser);
         return updatedUser;
     }

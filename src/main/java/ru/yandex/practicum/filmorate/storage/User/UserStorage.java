@@ -9,7 +9,7 @@ public interface UserStorage {
 
     User addUser(User newUser);
 
-    User updateUser(int userId);
+    User updateUser(User user);
 
     User getUserById(int userId);
 }

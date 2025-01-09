@@ -59,7 +59,7 @@ public class FilmController {
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
         log.info("пришел Put запрос /films с телом: {}", film);
-        Film updatedFilm = filmStorage.updateFilm(film.getId());
+        Film updatedFilm = filmStorage.updateFilm(film);
         log.info("Отправлен Put запрос /films с телом: {}", updatedFilm);
         return updatedFilm;
     }

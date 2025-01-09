@@ -49,12 +49,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film updateFilm(int filmId) {
+    public Film updateFilm(Film film) {
+        int filmId = film.getId();
         if (!films.containsKey(filmId)) {
             log.error("Фильма с id = {} не существует", filmId);
             throw new NotFoundException("Фильма с данным id не существует");
         }
-        Film film = films.get(filmId);
         if (!isFilmValid(film)) {
             log.error("Неверно указан один из параметров фильма: {}", film);
             throw new ValidationException("Неверно указан один из параметров фильма");

@@ -40,12 +40,12 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(int userId) {
+    public User updateUser(User user) {
+        int userId = user.getId();
         if (!users.containsKey(userId)) {
             log.error("Пользователя с id = {} не существует", userId);
             throw new NotFoundException("Пользователя с данным id не существует");
         }
-        User user = users.get(userId);
         if (!isUserValid(user)) {
             log.error("Неверно указан один из параметров пользователя: {}", user);
             throw new ValidationException("Неверно указан один из параметров пользователя");
