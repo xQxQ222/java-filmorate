@@ -25,7 +25,6 @@ public class FilmController {
         this.filmService = filmService;
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping
     public Collection<Film> findAll() {
         log.info("Пришел Get запрос /films");
@@ -34,7 +33,6 @@ public class FilmController {
         return films;
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{filmId}")
     public Film getFilmById(@PathVariable int filmId) {
         log.info("Пришел GET запрос /films/{}", filmId);
@@ -43,7 +41,6 @@ public class FilmController {
         return film;
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/popular")
     public List<Film> getPopularFilms(@RequestParam(required = false, defaultValue = "10") int count) {
         log.info("Пришел GET запрос /films/popular?count={}", count);
@@ -61,7 +58,6 @@ public class FilmController {
         return newFilm;
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
         log.info("пришел Put запрос /films с телом: {}", film);
@@ -70,7 +66,6 @@ public class FilmController {
         return updatedFilm;
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{filmId}/like/{userId}")
     public Film like(@PathVariable int filmId, @PathVariable int userId) {
         log.info("Пришел PUT запрос /films/{}/like/{}", filmId, userId);
@@ -79,7 +74,6 @@ public class FilmController {
         return film;
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{filmId}/like/{userId}")
     public Film unlike(@PathVariable int filmId, @PathVariable int userId) {
         log.info("Пришел DELETE запрос /films/{}/like/{}", filmId, userId);

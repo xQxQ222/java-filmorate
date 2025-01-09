@@ -41,9 +41,6 @@ public class UserService {
         }
         User user = userStorage.getUserById(userId);
         User friend = userStorage.getUserById(friendId);
-        if (!user.getFriends().contains(friendId)) {
-            throw new FriendException("Пользователь пытается удалить несуществующего друга", userId, friendId);
-        }
         user.getFriends().remove(friendId);
         friend.getFriends().remove(userId);
         return user;

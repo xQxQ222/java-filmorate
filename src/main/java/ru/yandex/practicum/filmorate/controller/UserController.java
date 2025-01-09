@@ -27,7 +27,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping
     public Collection<User> findAll() {
         log.info("Пришел GET запрос /users");
@@ -36,7 +35,6 @@ public class UserController {
         return users;
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{userId}/friends")
     public List<User> getUserFriends(@PathVariable int userId) {
         log.info("Пришел GET запрос /users/{}", userId);
@@ -45,8 +43,7 @@ public class UserController {
         return userFriends;
     }
 
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{userId}/friends/{otherId}")
+    @GetMapping("/{userId}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable int userId, @PathVariable int otherId) {
         log.info("Пришел GET запрос /user/{}/friends/{}", userId, otherId);
         List<User> commonFriends = userService.getCommonFriends(userId, otherId);
@@ -54,7 +51,6 @@ public class UserController {
         return commonFriends;
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{userId}")
     public User getUserById(@PathVariable int userId) {
         log.info("пришел GET запрос /users/{}", userId);
@@ -72,7 +68,6 @@ public class UserController {
         return newUser;
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         log.info("пришел PUT запрос /users с телом: {}", user);
@@ -81,7 +76,6 @@ public class UserController {
         return updatedUser;
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{userId}/friends/{friendId}")
     public User addFriend(@PathVariable int userId, @PathVariable int friendId) {
         log.info("Пришел PUT запрос /users/{}/friends/{}", userId, friendId);
@@ -90,7 +84,6 @@ public class UserController {
         return userWithFriend;
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{userId}/friends/{friendId}")
     public User deleteFriend(@PathVariable int userId, @PathVariable int friendId) {
         log.info("Пришел DELETE запрос /users/{}/friends/{}", userId, friendId);
