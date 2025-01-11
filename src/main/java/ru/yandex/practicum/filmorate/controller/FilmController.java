@@ -2,71 +2,79 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.time.Duration;
-import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
+    private final FilmService filmService;
 
-    private static final LocalDate MIN_FILM_DATE = LocalDate.of(1895, 12, 28);
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int filmCounter = 0;
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @GetMapping
     public Collection<Film> findAll() {
         log.info("Пришел Get запрос /films");
-        return films.values();
+        Collection<Film> films = filmService.getFilms();
+        log.info("Отправлен ответ GET /films с телом: {}", films);
+        return films;
     }
 
+    @GetMapping("/{filmId}")
+    public Film getFilmById(@PathVariable int filmId) {
+        log.info("Пришел GET запрос /films/{}", filmId);
+        Film film = filmService.getFilmById(filmId);
+        log.info("Отправлен ответ GET /films/{} с телом: {} ", filmId, film);
+        return film;
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(@RequestParam(required = false, defaultValue = "10") int count) {
+        log.info("Пришел GET запрос /films/popular?count={}", count);
+        List<Film> films = filmService.getMostLikedFilms(count);
+        log.info("Отправлен ответ GET /films/popular?count={} с телом: {}", count, films);
+        return films;
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         log.info("пришел Post запрос /films с телом: {}", film);
-        if (!isFilmValid(film)) {
-            log.error("Неверно указан один из параметров фильма: {}", film);
-            throw new ValidationException("Неверно указан один из параметров фильма");
-        }
-        film.setDuration(Duration.ofMinutes(film.getDuration().getSeconds()));
-        log.debug("Длительность фильма изменена на минуты");
-        film.setId(getNextId());
-        log.debug("Получен новый id фильма: {}", film.getId());
-        films.put(film.getId(), film);
-        log.info("Отправлен ответ Post /films с телом: {}", film);
-        return film;
+        Film newFilm = filmService.addFilm(film);
+        log.info("Отправлен ответ Post /films с телом: {}", newFilm);
+        return newFilm;
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
         log.info("пришел Put запрос /films с телом: {}", film);
-        if (!films.containsKey(film.getId())) {
-            log.error("Фильма с id = {} не существует", film.getId());
-            throw new NotFoundException("Фильма с данным id не существует");
-        }
-        if (!isFilmValid(film)) {
-            log.error("Неверно указан один из параметров фильма: {}", film);
-            throw new ValidationException("Неверно указан один из параметров фильма");
-        }
-        film.setDuration(Duration.ofMinutes(film.getDuration().getSeconds()));
-        log.debug("Длительность фильма изменена на минуты");
-        films.put(film.getId(), film);
-        log.info("Отправлен Put запрос /films с телом: {}", film);
+        Film updatedFilm = filmService.updateFilm(film);
+        log.info("Отправлен Put запрос /films с телом: {}", updatedFilm);
+        return updatedFilm;
+    }
+
+    @PutMapping("/{filmId}/like/{userId}")
+    public Film like(@PathVariable int filmId, @PathVariable int userId) {
+        log.info("Пришел PUT запрос /films/{}/like/{}", filmId, userId);
+        Film film = filmService.userLikedFilm(filmId, userId);
+        log.info("Отправлен ответ PUT /films/{}/like/{} с телом: {}", filmId, userId, film);
         return film;
     }
 
-    private boolean isFilmValid(Film filmToCheck) {
-        return ((filmToCheck.getDescription() == null || filmToCheck.getDescription().length() < 200) &&
-                filmToCheck.getReleaseDate().isAfter(MIN_FILM_DATE) &&
-                filmToCheck.getDuration().isPositive());
-    }
-
-    private int getNextId() {
-        return ++filmCounter;
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public Film unlike(@PathVariable int filmId, @PathVariable int userId) {
+        log.info("Пришел DELETE запрос /films/{}/like/{}", filmId, userId);
+        Film film = filmService.userUnlikeFilm(filmId, userId);
+        log.info("Отправлен ответ DELETE /films/{}/like/{} с телом: {}", filmId, userId, film);
+        return film;
     }
 }
