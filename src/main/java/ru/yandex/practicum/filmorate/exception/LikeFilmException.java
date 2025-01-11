@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class LikeFilmException extends RuntimeException {
     @Getter
-    private int userId;
+    private final int userId;
 
     @Getter
-    private int filmId;
+    private final int filmId;
 
     public LikeFilmException(String message, int userId, int filmId) {
         super(message);

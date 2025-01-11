@@ -1,17 +1,22 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FriendException;
 import ru.yandex.practicum.filmorate.exception.EqualIdsException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.User.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
+import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 @Service
+@Slf4j
 public class UserService {
 
     private final UserStorage userStorage;
@@ -19,6 +24,30 @@ public class UserService {
     @Autowired
     public UserService(InMemoryUserStorage userStorage) {
         this.userStorage = userStorage;
+    }
+
+    public User addUser(User user) {
+        if (!isUserValid(user)) {
+            log.error("Неверно указан один из параметров пользователя: {}", user);
+            throw new ValidationException("Неверно указан один из параметров пользователя");
+        }
+        return userStorage.addUser(user);
+    }
+
+    public User updateUser(User user) {
+        if (!isUserValid(user)) {
+            log.error("Неверно указан один из параметров пользователя: {}", user);
+            throw new ValidationException("Неверно указан один из параметров пользователя");
+        }
+        return userStorage.updateUser(user);
+    }
+
+    public Collection<User> getUsers() {
+        return userStorage.getUsers();
+    }
+
+    public User getUserById(int userId) {
+        return userStorage.getUserById(userId);
     }
 
     public User addFriend(int userId, int friendId) {
@@ -62,5 +91,10 @@ public class UserService {
                 .filter(friendFriends::contains)
                 .map(userStorage::getUserById)
                 .toList();
+    }
+
+    private boolean isUserValid(User userToCheck) {
+        return (!userToCheck.getLogin().contains(" ") &&
+                userToCheck.getBirthday().isBefore(LocalDate.now()));
     }
 }

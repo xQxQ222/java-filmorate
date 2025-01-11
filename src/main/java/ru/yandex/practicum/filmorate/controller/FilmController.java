@@ -7,8 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.Film.InMemoryFilmStorage;
 
 import java.util.*;
 
@@ -16,19 +14,17 @@ import java.util.*;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final FilmStorage filmStorage;
     private final FilmService filmService;
 
     @Autowired
-    public FilmController(InMemoryFilmStorage filmStorage, FilmService filmService) {
-        this.filmStorage = filmStorage;
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
 
     @GetMapping
     public Collection<Film> findAll() {
         log.info("Пришел Get запрос /films");
-        Collection<Film> films = filmStorage.getFilms();
+        Collection<Film> films = filmService.getFilms();
         log.info("Отправлен ответ GET /films с телом: {}", films);
         return films;
     }
@@ -36,7 +32,7 @@ public class FilmController {
     @GetMapping("/{filmId}")
     public Film getFilmById(@PathVariable int filmId) {
         log.info("Пришел GET запрос /films/{}", filmId);
-        Film film = filmStorage.getFilmById(filmId);
+        Film film = filmService.getFilmById(filmId);
         log.info("Отправлен ответ GET /films/{} с телом: {} ", filmId, film);
         return film;
     }
@@ -53,7 +49,7 @@ public class FilmController {
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         log.info("пришел Post запрос /films с телом: {}", film);
-        Film newFilm = filmStorage.addFilm(film);
+        Film newFilm = filmService.addFilm(film);
         log.info("Отправлен ответ Post /films с телом: {}", newFilm);
         return newFilm;
     }
@@ -61,7 +57,7 @@ public class FilmController {
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
         log.info("пришел Put запрос /films с телом: {}", film);
-        Film updatedFilm = filmStorage.updateFilm(film);
+        Film updatedFilm = filmService.updateFilm(film);
         log.info("Отправлен Put запрос /films с телом: {}", updatedFilm);
         return updatedFilm;
     }

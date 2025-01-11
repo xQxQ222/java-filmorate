@@ -7,8 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.User.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,19 +16,17 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserStorage userStorage;
     private final UserService userService;
 
     @Autowired
-    public UserController(InMemoryUserStorage userStorage, UserService userService) {
-        this.userStorage = userStorage;
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @GetMapping
     public Collection<User> findAll() {
         log.info("Пришел GET запрос /users");
-        Collection<User> users = userStorage.getUsers();
+        Collection<User> users = userService.getUsers();
         log.info("Отправлен ответ GET /users с телом: {}", users);
         return users;
     }
@@ -54,7 +50,7 @@ public class UserController {
     @GetMapping("/{userId}")
     public User getUserById(@PathVariable int userId) {
         log.info("пришел GET запрос /users/{}", userId);
-        User user = userStorage.getUserById(userId);
+        User user = userService.getUserById(userId);
         log.info("Отправлен ответ GET /users/{} с телом: {}", userId, user);
         return user;
     }
@@ -63,7 +59,7 @@ public class UserController {
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.info("пришел POST запрос /users с телом: {}", user);
-        User newUser = userStorage.addUser(user);
+        User newUser = userService.addUser(user);
         log.info("Отправлен ответ Post /users с телом: {}", newUser);
         return newUser;
     }
@@ -71,7 +67,7 @@ public class UserController {
     @PutMapping
     public User update(@Valid @RequestBody User user) {
         log.info("пришел PUT запрос /users с телом: {}", user);
-        User updatedUser = userStorage.updateUser(user);
+        User updatedUser = userService.updateUser(user);
         log.info("Отправлен Put запрос /users с телом: {}", updatedUser);
         return updatedUser;
     }

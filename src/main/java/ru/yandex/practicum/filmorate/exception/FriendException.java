@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.BAD_GATEWAY)
 public class FriendException extends RuntimeException {
     @Getter
-    int userId;
+    private final int userId;
     @Getter
-    int friendId;
+    private final int friendId;
 
     public FriendException(String message, int userId, int friendId) {
         super(message);
