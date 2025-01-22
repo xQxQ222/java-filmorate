@@ -14,6 +14,7 @@ import java.util.Set;
 @Setter
 @RequiredArgsConstructor
 @ToString
+@NoArgsConstructor
 public class User {
     private int id;
     @NonNull
@@ -25,5 +26,5 @@ public class User {
     @NonNull
     private LocalDate birthday;
     @JsonIgnore
-    private Set<Integer> friends = new HashSet<>();
+    private Set<User> friends = new HashSet<>();
 }

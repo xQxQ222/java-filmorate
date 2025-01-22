@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.Film;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,9 +10,11 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Slf4j
+@Qualifier("filmInMemory")
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films;
     private int filmCounter = 0;
@@ -34,11 +37,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getFilmById(int filmId) {
+    public Optional<Film> getFilmById(int filmId) {
         if (!films.containsKey(filmId)) {
             throw new NotFoundException("Фильм с id " + filmId + " не найден");
         }
-        return films.get(filmId);
+        return Optional.ofNullable(films.get(filmId));
     }
 
     @Override

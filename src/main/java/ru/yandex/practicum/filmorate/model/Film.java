@@ -15,6 +15,7 @@ import java.util.Set;
 @Setter
 @EqualsAndHashCode(of = {"id"})
 @RequiredArgsConstructor
+@NoArgsConstructor
 @ToString
 public class Film {
     private int id;
@@ -27,17 +28,19 @@ public class Film {
     @JsonSerialize(using = DurationSerializer.class)
     private Duration duration;
     @JsonIgnore
-    private Set<Integer> userLiked = new HashSet<>();
+    private Set<User> userLiked = new HashSet<>();
     @JsonIgnore
     private long rate = 0;
+    private MpaRating mpaRating;
+    private Genre genre;
 
-    public void addLike(int userId) {
-        userLiked.add(userId);
+    public void addLike(User user) {
+        userLiked.add(user);
         rate = userLiked.size();
     }
 
-    public void removeLike(int userId) {
-        userLiked.remove(userId);
+    public void removeLike(User user) {
+        userLiked.remove(user);
         rate = userLiked.size();
     }
 }
