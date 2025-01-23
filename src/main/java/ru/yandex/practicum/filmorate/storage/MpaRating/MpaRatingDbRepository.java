@@ -15,7 +15,7 @@ import java.util.Optional;
 @Component
 @Qualifier("ratingDb")
 @RequiredArgsConstructor
-public class MpaRatingDbRepository implements MpaRatingStorage {
+public class MpaRatingDbRepository implements MpaRatingRepository {
     private final NamedParameterJdbcOperations jdbc;
     private final MpaRatingMapper ratingMapper;
 

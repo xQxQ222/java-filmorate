@@ -5,10 +5,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.List;
 import java.util.Optional;
 
-public interface FriendsStorage {
-    Optional<User> beFriend(int userId, int friendId);
+public interface FriendsRepository {
+    Optional<User> beFriend(User user, User friend);
 
-    Optional<User> unfriendUser(int userId, int friendId);
+    Optional<User> unfriendUser(User user, User friend);
 
     List<User> getUserFriends(int userId);
 

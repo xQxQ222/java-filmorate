@@ -26,7 +26,9 @@ public class UserDbRepository implements UserStorage {
     @Override
     public Collection<User> getUsers() {
         final String query = "SELECT * FROM \"User\"";
-        return jdbc.query(query, userMapper);
+        return jdbc.query(query, userMapper).stream()
+                .peek(user -> user.setFriends(getUserFriends(user.getId())))
+                .toList();
     }
 
     @Override
@@ -75,5 +77,13 @@ public class UserDbRepository implements UserStorage {
 
         List<User> users = jdbc.query(query, parameterSource, userMapper);
         return users.isEmpty() ? Optional.empty() : Optional.ofNullable(users.getFirst());
+    }
+
+    private List<User> getUserFriends(int userId) {
+        final String query = "SELECT * FROM \"User\" u WHERE u.user_id IN " +
+                "(SELECT fr.friend_id FROM USERFRIENDS fr WHERE fr.user_id = :user_id)";
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource()
+                .addValue("user_id", userId);
+        return jdbc.query(query, parameterSource, userMapper);
     }
 }

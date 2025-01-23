@@ -1,13 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @EqualsAndHashCode(of = {"id"})
 @Getter
@@ -25,6 +26,6 @@ public class User {
     private String name;
     @NonNull
     private LocalDate birthday;
-    @JsonIgnore
-    private Set<User> friends = new HashSet<>();
+    @JsonProperty
+    private List<User> friends = new ArrayList<>();
 }

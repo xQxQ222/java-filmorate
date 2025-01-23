@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.MpaRating;
-import ru.yandex.practicum.filmorate.storage.MpaRating.MpaRatingStorage;
+import ru.yandex.practicum.filmorate.storage.MpaRating.MpaRatingRepository;
 
 import java.util.Collection;
 
@@ -14,14 +14,14 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class MpaRatingService {
 
-    private final MpaRatingStorage mpaRatingStorage;
+    private final MpaRatingRepository mpaRatingRepository;
 
     public Collection<MpaRating> getMpaRatings() {
-        return mpaRatingStorage.getAllRatings();
+        return mpaRatingRepository.getAllRatings();
     }
 
     public MpaRating getMpaRatingById(short ratingId) {
-        return mpaRatingStorage.getRatingById(ratingId)
+        return mpaRatingRepository.getRatingById(ratingId)
                 .orElseThrow(() -> new NotFoundException("Рейтинг не найден в базе данных"));
     }
 }

@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.exception.EqualIdsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.Friends.FriendsStorage;
+import ru.yandex.practicum.filmorate.storage.Friends.FriendsRepository;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
 import java.time.LocalDate;
@@ -20,12 +20,12 @@ import java.util.List;
 public class UserService {
 
     private final UserStorage userStorage;
-    private final FriendsStorage friendsStorage;
+    private final FriendsRepository friendsRepository;
 
     @Autowired
-    public UserService(@Qualifier("dbUser") UserStorage userStorage, FriendsStorage friendsStorage) {
+    public UserService(@Qualifier("dbUser") UserStorage userStorage, FriendsRepository friendsRepository) {
         this.userStorage = userStorage;
-        this.friendsStorage = friendsStorage;
+        this.friendsRepository = friendsRepository;
     }
 
     public User addUser(User user) {
@@ -57,7 +57,7 @@ public class UserService {
         if (userId == friendId) {
             throw new EqualIdsException("Пользователь не может добавить сам себя в друзья", userId);
         }
-        return friendsStorage.beFriend(userId, friendId)
+        return friendsRepository.beFriend(getUserById(userId), getUserById(friendId))
                 .orElseThrow(() -> new NotFoundException("Произошла ошибка при добавлении в друзья"));
     }
 
@@ -65,20 +65,20 @@ public class UserService {
         if (userId == friendId) {
             throw new EqualIdsException("Пользователь не может удалить сам себя из друзей", userId);
         }
-        User user = friendsStorage.unfriendUser(userId, friendId)
+        User user = friendsRepository.unfriendUser(getUserById(userId), getUserById(friendId))
                 .orElseThrow(() -> new NotFoundException("Пользователя нет в базе данных"));
         return user;
     }
 
     public List<User> getUserFriends(int userId) {
-        return friendsStorage.getUserFriends(userId);
+        return friendsRepository.getUserFriends(userId);
     }
 
     public List<User> getCommonFriends(int userId, int otherId) {
         if (userId == otherId) {
             throw new EqualIdsException("Id пользователя совпадает с другим id", userId);
         }
-        return friendsStorage.getCommonFriend(userId, otherId);
+        return friendsRepository.getCommonFriend(userId, otherId);
     }
 
     private boolean isUserValid(User userToCheck) {

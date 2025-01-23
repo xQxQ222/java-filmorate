@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 
-public interface MpaRatingStorage {
+public interface MpaRatingRepository {
     Collection<MpaRating> getAllRatings();
 
     Optional<MpaRating> getRatingById(short ratingId);

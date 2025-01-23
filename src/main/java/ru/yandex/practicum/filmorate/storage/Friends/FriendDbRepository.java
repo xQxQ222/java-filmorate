@@ -12,56 +12,37 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class FriendDbRepository implements FriendsStorage {
+public class FriendDbRepository implements FriendsRepository {
 
     private final NamedParameterJdbcOperations jdbc;
     private final UserMapper userMapper;
 
     @Override
-    public Optional<User> beFriend(int userId, int friendId) {
-        final String query = "INSERT INTO USERFRIENDS VALUES (:user_id,:friend_id,false);\n" +
-                "UPDATE USERFRIENDS " +
-                "SET ACCEPTED_REQUEST = TRUE " +
-                "WHERE ((USER_ID = :user_id AND FRIEND_ID = :friend_id)\n" +
-                "    OR " +
-                "    (USER_ID = :friend_id AND FRIEND_ID = :user_id))" +
-                "AND EXISTS (" +
-                "    SELECT 1" +
-                "    FROM USERFRIENDS" +
-                "    WHERE (USER_ID = :user_id AND FRIEND_ID = :friend_id)" +
-                "    OR (USER_ID = :friend_id AND FRIEND_ID = :user_id)" +
-                "    HAVING COUNT(*) = 2);";
+    public Optional<User> beFriend(User user, User friend) {
+        final String query = "INSERT INTO UserFriends VALUES (:user_id, :friend_id)";
         MapSqlParameterSource parameterSource = new MapSqlParameterSource()
-                .addValue("user_id", userId)
-                .addValue("friend_id", friendId);
+                .addValue("user_id", user.getId())
+                .addValue("friend_id", friend.getId());
         jdbc.update(query, parameterSource);
-        final String queryUser = "SELECT * FROM \"User\" WHERE user_id = :user_id";
-        MapSqlParameterSource parameterSourceForGetUser = new MapSqlParameterSource()
-                .addValue("user_id", userId);
-        List<User> users = jdbc.query(queryUser, parameterSourceForGetUser, userMapper);
-        return users.isEmpty() ? Optional.empty() : Optional.ofNullable(users.getFirst());
+        user.setFriends(getUserFriends(user.getId()));
+        return Optional.of(user);
     }
 
     @Override
-    public Optional<User> unfriendUser(int userId, int friendId) {
-        final String updateSql = "UPDATE UserFriends SET accepted_request = FALSE WHERE user_id = :friend_id AND friend_id = :user_id";
+    public Optional<User> unfriendUser(User user, User friend) {
         final String deleteSql = "DELETE FROM UserFriends WHERE user_id = :user_id AND friend_id = :friend_id";
         MapSqlParameterSource parameterSource = new MapSqlParameterSource()
-                .addValue("user_id", friendId)
-                .addValue("friend_id", userId);
-        jdbc.update(updateSql, parameterSource);
+                .addValue("user_id", user.getId())
+                .addValue("friend_id", friend.getId());
         jdbc.update(deleteSql, parameterSource);
-        final String queryUser = "SELECT * FROM \"User\" WHERE user_id = :user_id";
-        MapSqlParameterSource parameterSourceForGetUser = new MapSqlParameterSource()
-                .addValue("user_id", userId);
-        List<User> users = jdbc.query(queryUser, parameterSourceForGetUser, userMapper);
-        return users.isEmpty() ? Optional.empty() : Optional.ofNullable(users.getFirst());
+        user.setFriends(getUserFriends(user.getId()));
+        return Optional.of(user);
     }
 
     @Override
     public List<User> getUserFriends(int userId) {
         final String query = "SELECT * FROM \"User\" u WHERE u.user_id IN " +
-                "(SELECT fr.friend_id FROM USERFRIENDS fr WHERE fr.user_id = :user_id AND fr.ACCEPTED_REQUEST = TRUE)";
+                "(SELECT fr.friend_id FROM USERFRIENDS fr WHERE fr.user_id = :user_id)";
         MapSqlParameterSource parameterSource = new MapSqlParameterSource()
                 .addValue("user_id", userId);
         return jdbc.query(query, parameterSource, userMapper);
@@ -69,12 +50,11 @@ public class FriendDbRepository implements FriendsStorage {
 
     @Override
     public List<User> getCommonFriend(int userId, int otherId) {
-        final String query = "SELECT * FROM \"User\" u \n" +
-                "WHERE user_id IN (SELECT uf1.FRIEND_ID\n" +
-                "FROM USERFRIENDS uf1\n" +
-                "JOIN USERFRIENDS uf2\n" +
-                "    ON uf1.FRIEND_ID = uf2.FRIEND_ID\n" +
-                "WHERE uf1.USER_ID = :user_id AND uf2.USER_ID = :other_id AND uf1.ACCEPTED_REQUEST = TRUE AND uf2.ACCEPTED_REQUEST = TRUE)";
+        final String query = "SELECT * FROM \"User\" u WHERE u.user_id IN " +
+                "(SELECT uf1.friend_id\n" +
+                "FROM UserFriends uf1\n" +
+                "JOIN UserFriends uf2 ON uf1.friend_id = uf2.friend_id\n" +
+                "WHERE uf1.user_id = :user_id AND uf2.user_id = :other_id)";
         MapSqlParameterSource parameterSource = new MapSqlParameterSource()
                 .addValue("user_id", userId)
                 .addValue("other_id", otherId);

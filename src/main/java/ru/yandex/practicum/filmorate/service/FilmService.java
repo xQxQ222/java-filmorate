@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.Likes.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.Likes.LikeRepository;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
 
 import java.time.LocalDate;
@@ -20,13 +20,13 @@ public class FilmService {
     private static final LocalDate MIN_FILM_DATE = LocalDate.of(1895, 12, 28);
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-    private final LikeStorage likeStorage;
+    private final LikeRepository likeRepository;
 
     @Autowired
-    public FilmService(@Qualifier("filmDb") FilmStorage filmStorage, @Qualifier("dbUser") UserStorage userStorage, LikeStorage likeStorage) {
+    public FilmService(@Qualifier("filmDb") FilmStorage filmStorage, @Qualifier("dbUser") UserStorage userStorage, LikeRepository likeRepository) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
-        this.likeStorage = likeStorage;
+        this.likeRepository = likeRepository;
     }
 
     public Film addFilm(Film film) {
@@ -55,12 +55,12 @@ public class FilmService {
     }
 
     public Film userLikedFilm(int filmId, int userId) {
-        return likeStorage.likeFilm(userId, filmId)
+        return likeRepository.likeFilm(userId, filmId)
                 .orElseThrow(() -> new NotFoundException("При попытке поставить лайк фильму произошла ошибка"));
     }
 
     public Film userUnlikeFilm(int filmId, int userId) {
-        return likeStorage.unlikeFilm(userId, filmId)
+        return likeRepository.unlikeFilm(userId, filmId)
                 .orElseThrow(() -> new NotFoundException("При снятии лайка с фильма произошла ошибка"));
     }
 
@@ -68,7 +68,7 @@ public class FilmService {
         if (count <= 0) {
             throw new ValidationException("Количество выбранных фильмов должно быть больше 0");
         }
-        return likeStorage.getMostPopularFilms(count);
+        return likeRepository.getMostPopularFilms(count);
     }
 
     private boolean isFilmValid(Film filmToCheck) {

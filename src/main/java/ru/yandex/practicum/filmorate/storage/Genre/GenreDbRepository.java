@@ -15,7 +15,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Component
 @Qualifier("genreDb")
-public class GenreDbRepository implements GenreStorage {
+public class GenreDbRepository implements GenreRepository {
 
     private final NamedParameterJdbcOperations jdbc;
     private final GenreMapper genreMapper;
