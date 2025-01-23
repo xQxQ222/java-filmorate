@@ -58,7 +58,7 @@ class FilmoRateApplicationTests {
     }
 
     @Test
-    public void testFindFilmById(){
+    public void testFindFilmById() {
         Optional<Film> filmOptional = filmDbRepository.getFilmById(1);
         assertThat(filmOptional)
                 .isEmpty();
@@ -67,7 +67,7 @@ class FilmoRateApplicationTests {
         film.setName("Лара Крофт");
         film.setDescription("Крутой фильм");
         film.setDuration(Duration.ofMinutes(90));
-        film.setReleaseDate(LocalDate.of(2019, Month.FEBRUARY,12));
+        film.setReleaseDate(LocalDate.of(2019, Month.FEBRUARY, 12));
         film.setMpa(mpaRatingDbRepository.getRatingById((short) 2).get());
         film.setGenres(genreDbRepository.getAllGenres().stream().toList());
         filmDbRepository.addFilm(film);
