@@ -112,11 +112,9 @@ public class FilmDbRepository implements FilmStorage {
         final String query = "SELECT * FROM FilmGenres fg JOIN GENRE g ON fg.genre_id=g.genre_id WHERE fg.film_id = :film_id";
         MapSqlParameterSource parameterSource = new MapSqlParameterSource()
                 .addValue("film_id", film.getId());
-        List<Genre> genres = jdbc.query(query, parameterSource, genreMapper);
-        if (genres.size() != film.getGenres().size()) {
-            throw new ValidationException("Есть неправильные id жанров");
-        }
-        return genres;
+        return jdbc.query(query, parameterSource, genreMapper).stream()
+                .peek(genre -> getGenreById(genre.getId()).orElseThrow(() -> new ValidationException("Жанр не найден в БД")))
+                .toList();
     }
 
     private Optional<MpaRating> getMpaRatingByFilm(int filmId) {
@@ -136,5 +134,13 @@ public class FilmDbRepository implements FilmStorage {
             insertFilmGenres.delete(insertFilmGenres.lastIndexOf(","), insertFilmGenres.length());
             jdbc.update(insertFilmGenres.toString(), new MapSqlParameterSource());
         }
+    }
+
+    private Optional<Genre> getGenreById(short genreId) {
+        final String query = "SELECT * FROM Genre WHERE genre_id = :genre_id";
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource()
+                .addValue("genre_id", genreId);
+        List<Genre> genre = jdbc.query(query, parameterSource, genreMapper);
+        return genre.isEmpty() ? Optional.empty() : Optional.ofNullable(genre.getFirst());
     }
 }

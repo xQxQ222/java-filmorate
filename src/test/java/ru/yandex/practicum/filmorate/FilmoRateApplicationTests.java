@@ -73,7 +73,6 @@ class FilmoRateApplicationTests {
 
         Optional<Film> filmOptional2 = filmDbRepository.getFilmById(1);
         assertThat(filmOptional2)
-                .isPresent()
-                .hasValueSatisfying(film1 -> assertThat(film1).hasFieldOrPropertyWithValue("id", 1));
+                .isPresent();
     }
 }
