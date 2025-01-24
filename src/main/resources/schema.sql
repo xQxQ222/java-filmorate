@@ -23,7 +23,6 @@ CREATE TABLE IF NOT EXISTS Film(
     film_release_date DATE,
     film_duration SMALLINT,
     mpa_rating_id SMALLINT,
-    FOREIGN KEY (mpa_rating_id) REFERENCES MpaRating(rating_id),
     CONSTRAINT film_min_date CHECK (film_release_date >= '1895-12-28'),
     CONSTRAINT film_duration_positive CHECK (film_duration > 0)
 );
@@ -31,7 +30,6 @@ CREATE TABLE IF NOT EXISTS Film(
 CREATE TABLE IF NOT EXISTS FilmGenres(
     film_id INTEGER,
     genre_id SMALLINT,
-    FOREIGN KEY (genre_id) REFERENCES Genre(genre_id),
     CONSTRAINT unique_film_genre UNIQUE (film_id,genre_id)
 );
 

@@ -29,9 +29,7 @@ public class HelperMethods {
         final String query = "SELECT * FROM FilmGenres fg JOIN GENRE g ON fg.genre_id=g.genre_id WHERE fg.film_id = :film_id";
         MapSqlParameterSource parameterSource = new MapSqlParameterSource()
                 .addValue("film_id", film.getId());
-        return jdbc.query(query, parameterSource, genreMapper).stream()
-                .peek(genre -> getGenreById(genre.getId()).orElseThrow(() -> new ValidationException("Жанр не найден в БД")))
-                .toList();
+        return jdbc.query(query, parameterSource, genreMapper);
     }
 
     public Optional<MpaRating> getMpaRatingByFilm(int filmId) {
@@ -68,4 +66,12 @@ public class HelperMethods {
         return jdbc.query(query, parameterSource, userMapper);
     }
 
+    public List<Genre> checkGenresList(Film film) {
+        List<Genre> genres = film.getGenres();
+        for (Genre genre : genres) {
+            getGenreById(genre.getId()).orElseThrow(() -> new ValidationException("Введен неверный id жанра"));
+        }
+        return genres.stream().distinct().toList();
+
+    }
 }

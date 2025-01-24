@@ -7,8 +7,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.HelperMethods;
 
@@ -39,6 +41,7 @@ public class FilmDbRepository implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
+        film.setGenres(helperMethods.checkGenresList(film));
         final String updateRequest = "UPDATE Film SET film_name = :film_name, film_description = :film_description, film_release_date = :film_release_date," +
                 " film_duration = :film_duration, mpa_rating_id = :mpa_rating_id WHERE film_id = :film_id";
         MapSqlParameterSource parameterSource = new MapSqlParameterSource()
@@ -69,6 +72,7 @@ public class FilmDbRepository implements FilmStorage {
 
     @Override
     public Film addFilm(Film newFilm) {
+        newFilm.setGenres(helperMethods.checkGenresList(newFilm));
         final String query = "INSERT INTO FILM (film_name, film_description, film_release_date, film_duration, mpa_rating_id)" +
                 " VALUES (:film_name, :film_description, :film_release_date, :film_duration, :mpa_rating_id)";
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -79,13 +83,15 @@ public class FilmDbRepository implements FilmStorage {
                 .addValue("film_duration", newFilm.getDuration().toSeconds())
                 .addValue("mpa_rating_id", newFilm.getMpa().getId());
 
+
         jdbc.update(query, parameterSource, keyHolder, new String[]{"film_id"});
         newFilm.setId(keyHolder.getKeyAs(Integer.class));
         newFilm.setDuration(Duration.ofMinutes(newFilm.getDuration().toSeconds()));
         helperMethods.insertFilmGenres(newFilm);
-        newFilm.setGenres(helperMethods.getFilmGenres(newFilm));
+        List<Genre> genres = helperMethods.getFilmGenres(newFilm);
+        newFilm.setGenres(genres);
         MpaRating filmRating = helperMethods.getMpaRatingByFilm(newFilm.getId())
-                .orElseThrow(() -> new NotFoundException("Не найден рейтинг МРА в БД"));
+                .orElseThrow(() -> new ValidationException("Неверный id МРА рейтинга"));
         newFilm.setMpa(filmRating);
         return newFilm;
     }
@@ -104,6 +110,5 @@ public class FilmDbRepository implements FilmStorage {
                 .toList();
         return films.isEmpty() ? Optional.empty() : Optional.ofNullable(films.getFirst());
     }
-
 
 }
