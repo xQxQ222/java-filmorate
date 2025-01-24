@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.Film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.Likes.LikeRepository;
 import ru.yandex.practicum.filmorate.storage.User.UserStorage;
@@ -55,11 +56,19 @@ public class FilmService {
     }
 
     public Film userLikedFilm(int filmId, int userId) {
+        User user = userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден в БД"));
+        Film film = filmStorage.getFilmById(filmId)
+                .orElseThrow(() -> new NotFoundException("Фильм не найден в БД"));
         return likeRepository.likeFilm(userId, filmId)
                 .orElseThrow(() -> new NotFoundException("При попытке поставить лайк фильму произошла ошибка"));
     }
 
     public Film userUnlikeFilm(int filmId, int userId) {
+        User user = userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден в БД"));
+        Film film = filmStorage.getFilmById(filmId)
+                .orElseThrow(() -> new NotFoundException("Фильм не найден в БД"));
         return likeRepository.unlikeFilm(userId, filmId)
                 .orElseThrow(() -> new NotFoundException("При снятии лайка с фильма произошла ошибка"));
     }

@@ -40,7 +40,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionResponce handleValidate(final ValidationException e) {
         log.error("Ошибка валидации: {}", e.getMessage());
         return new ExceptionResponce("Произошла ошибка валидации", e.getMessage());

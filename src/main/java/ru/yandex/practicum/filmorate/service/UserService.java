@@ -57,6 +57,10 @@ public class UserService {
         if (userId == friendId) {
             throw new EqualIdsException("Пользователь не может добавить сам себя в друзья", userId);
         }
+        User user = userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден в БД"));
+        User friend = userStorage.getUserById(friendId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден в БД"));
         return friendsRepository.beFriend(getUserById(userId), getUserById(friendId))
                 .orElseThrow(() -> new NotFoundException("Произошла ошибка при добавлении в друзья"));
     }
@@ -71,6 +75,8 @@ public class UserService {
     }
 
     public List<User> getUserFriends(int userId) {
+        User user = userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден в БД"));
         return friendsRepository.getUserFriends(userId);
     }
 
@@ -78,6 +84,10 @@ public class UserService {
         if (userId == otherId) {
             throw new EqualIdsException("Id пользователя совпадает с другим id", userId);
         }
+        User user = userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден в БД"));
+        User otherUser = userStorage.getUserById(otherId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден в БД"));
         return friendsRepository.getCommonFriend(userId, otherId);
     }
 

@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -77,11 +78,12 @@ public class FilmDbRepository implements FilmStorage {
                 .addValue("film_name", newFilm.getName())
                 .addValue("film_description", newFilm.getDescription())
                 .addValue("film_release_date", newFilm.getReleaseDate())
-                .addValue("film_duration", newFilm.getDuration().toMinutes())
+                .addValue("film_duration", newFilm.getDuration().toSeconds())
                 .addValue("mpa_rating_id", newFilm.getMpa().getId());
 
         jdbc.update(query, parameterSource, keyHolder, new String[]{"film_id"});
         newFilm.setId(keyHolder.getKeyAs(Integer.class));
+        newFilm.setDuration(Duration.ofMinutes(newFilm.getDuration().toSeconds()));
         insertFilmGenres(newFilm);
         newFilm.setGenres(getFilmGenres(newFilm.getId()));
         MpaRating filmRating = getMpaRatingByFilm(newFilm.getId())

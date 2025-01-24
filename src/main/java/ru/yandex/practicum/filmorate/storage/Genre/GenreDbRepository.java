@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.mapper.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +20,7 @@ public class GenreDbRepository implements GenreRepository {
     private final GenreMapper genreMapper;
 
     @Override
-    public Collection<Genre> getAllGenres() {
+    public List<Genre> getAllGenres() {
         final String query = "SELECT * FROM Genre";
         return jdbc.query(query, genreMapper);
     }

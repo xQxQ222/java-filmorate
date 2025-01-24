@@ -33,7 +33,7 @@ public class Film {
     @JsonIgnore
     private long rate = 0;
     private MpaRating mpa;
-    private List<Genre> genres;
+    private List<Genre> genres = new ArrayList<>();
 
     public void addLike(User user) {
         userLiked.add(user);

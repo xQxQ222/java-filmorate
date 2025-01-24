@@ -45,7 +45,8 @@ public class FriendDbRepository implements FriendsRepository {
                 "(SELECT fr.friend_id FROM USERFRIENDS fr WHERE fr.user_id = :user_id)";
         MapSqlParameterSource parameterSource = new MapSqlParameterSource()
                 .addValue("user_id", userId);
-        return jdbc.query(query, parameterSource, userMapper);
+        List<User> users = jdbc.query(query, parameterSource, userMapper);
+        return users;
     }
 
     @Override
