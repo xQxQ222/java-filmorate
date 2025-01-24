@@ -33,6 +33,7 @@ public class Film {
     @JsonIgnore
     private long rate = 0;
     private MpaRating mpa;
+    @JsonProperty(required = false)
     private List<Genre> genres = new ArrayList<>();
 
     public void addLike(User user) {

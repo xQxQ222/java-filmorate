@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.GenreMapper;
 import ru.yandex.practicum.filmorate.mapper.MpaRatingMapper;
@@ -35,7 +36,7 @@ public class FilmDbRepository implements FilmStorage {
                 " FROM Film f" +
                 " JOIN MPARATING mr ON f.MPA_RATING_ID=mr.Rating_id";
         return jdbc.query(query, filmMapper).stream()
-                .peek(film -> film.setGenres(getFilmGenres(film.getId())))
+                .peek(film -> film.setGenres(getFilmGenres(film)))
                 .peek(film -> film.setMpa(getMpaRatingByFilm(film.getId()).orElseThrow(() -> new NotFoundException("Рейтинг МРА не найден в БД"))))
                 .toList();
     }
@@ -65,7 +66,7 @@ public class FilmDbRepository implements FilmStorage {
         MpaRating mpa = getMpaRatingByFilm(film.getId())
                 .orElseThrow(() -> new NotFoundException("Рейтинг МРА не найден в БД"));
         film.setMpa(mpa);
-        film.setGenres(getFilmGenres(film.getId()));
+        film.setGenres(getFilmGenres(film));
         return film;
     }
 
@@ -85,7 +86,7 @@ public class FilmDbRepository implements FilmStorage {
         newFilm.setId(keyHolder.getKeyAs(Integer.class));
         newFilm.setDuration(Duration.ofMinutes(newFilm.getDuration().toSeconds()));
         insertFilmGenres(newFilm);
-        newFilm.setGenres(getFilmGenres(newFilm.getId()));
+        newFilm.setGenres(getFilmGenres(newFilm));
         MpaRating filmRating = getMpaRatingByFilm(newFilm.getId())
                 .orElseThrow(() -> new NotFoundException("Не найден рейтинг МРА в БД"));
         newFilm.setMpa(filmRating);
@@ -101,17 +102,21 @@ public class FilmDbRepository implements FilmStorage {
         MapSqlParameterSource parameterSource = new MapSqlParameterSource()
                 .addValue("film_id", filmId);
         List<Film> films = jdbc.query(query, parameterSource, filmMapper).stream()
-                .peek(film -> film.setGenres(getFilmGenres(filmId)))
+                .peek(film -> film.setGenres(getFilmGenres(film)))
                 .peek(film -> film.setMpa(getMpaRatingByFilm(filmId).orElseThrow(() -> new NotFoundException("Рейтинг МРА не найден в БД"))))
                 .toList();
         return films.isEmpty() ? Optional.empty() : Optional.ofNullable(films.getFirst());
     }
 
-    private List<Genre> getFilmGenres(int filmId) {
+    private List<Genre> getFilmGenres(Film film) {
         final String query = "SELECT * FROM FilmGenres fg JOIN GENRE g ON fg.genre_id=g.genre_id WHERE fg.film_id = :film_id";
         MapSqlParameterSource parameterSource = new MapSqlParameterSource()
-                .addValue("film_id", filmId);
-        return jdbc.query(query, parameterSource, genreMapper);
+                .addValue("film_id", film.getId());
+        List<Genre> genres = jdbc.query(query, parameterSource, genreMapper);
+        if (genres.size() != film.getGenres().size()) {
+            throw new ValidationException("Есть неправильные id жанров");
+        }
+        return genres;
     }
 
     private Optional<MpaRating> getMpaRatingByFilm(int filmId) {
@@ -123,13 +128,13 @@ public class FilmDbRepository implements FilmStorage {
     }
 
     private void insertFilmGenres(Film newFilm) {
-        StringBuilder insertFilmGenres = new StringBuilder("INSERT INTO FilmGenres VALUES");
-        for (Genre genre : newFilm.getGenres()) {
-            insertFilmGenres.append(" (" + newFilm.getId() + ", " + genre.getId() + "),");
-        }
         if (!newFilm.getGenres().isEmpty()) {
+            StringBuilder insertFilmGenres = new StringBuilder("INSERT INTO FilmGenres VALUES");
+            for (Genre genre : newFilm.getGenres()) {
+                insertFilmGenres.append(" (" + newFilm.getId() + ", " + genre.getId() + "),");
+            }
             insertFilmGenres.delete(insertFilmGenres.lastIndexOf(","), insertFilmGenres.length());
+            jdbc.update(insertFilmGenres.toString(), new MapSqlParameterSource());
         }
-        jdbc.update(insertFilmGenres.toString(), new MapSqlParameterSource());
     }
 }
