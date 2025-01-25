@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.Friends;
+package ru.yandex.practicum.filmorate.storage.friends;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;

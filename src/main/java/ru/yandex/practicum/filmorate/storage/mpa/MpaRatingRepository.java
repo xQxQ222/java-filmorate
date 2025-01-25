@@ -1,13 +1,13 @@
-package ru.yandex.practicum.filmorate.storage.MpaRating;
+package ru.yandex.practicum.filmorate.storage.mpa;
 
 import ru.yandex.practicum.filmorate.model.MpaRating;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 
 public interface MpaRatingRepository {
-    Collection<MpaRating> getAllRatings();
+    List<MpaRating> getAllRatings();
 
     Optional<MpaRating> getRatingById(short ratingId);
 }

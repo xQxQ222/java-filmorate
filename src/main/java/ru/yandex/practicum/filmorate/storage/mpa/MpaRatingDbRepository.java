@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.MpaRating;
+package ru.yandex.practicum.filmorate.storage.mpa;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.mapper.MpaRatingMapper;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +19,7 @@ public class MpaRatingDbRepository implements MpaRatingRepository {
     private final MpaRatingMapper ratingMapper;
 
     @Override
-    public Collection<MpaRating> getAllRatings() {
+    public List<MpaRating> getAllRatings() {
         final String query = "SELECT * FROM MpaRating";
         return jdbc.query(query, ratingMapper);
     }

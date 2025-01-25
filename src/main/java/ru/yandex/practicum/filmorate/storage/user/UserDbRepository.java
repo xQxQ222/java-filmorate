@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.User;
+package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;

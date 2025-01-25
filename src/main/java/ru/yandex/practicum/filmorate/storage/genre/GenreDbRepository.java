@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.Genre;
+package ru.yandex.practicum.filmorate.storage.genre;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;

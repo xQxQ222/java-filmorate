@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.Likes;
+package ru.yandex.practicum.filmorate.storage.likes;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -7,7 +7,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.HelperMethods;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +17,6 @@ public class LikeDbRepository implements LikeRepository {
 
     private final NamedParameterJdbcOperations jdbc;
     private final FilmMapper filmMapper;
-    private final HelperMethods helperMethods;
 
     @Override
     public Optional<Film> likeFilm(int userId, int filmId) {
@@ -34,10 +32,7 @@ public class LikeDbRepository implements LikeRepository {
                 " WHERE f.film_id = :film_id";
         MapSqlParameterSource parameterSources = new MapSqlParameterSource()
                 .addValue("film_id", filmId);
-        List<Film> films = jdbc.query(queryF, parameterSources, filmMapper).stream()
-                .peek(film -> film.setUserLiked(helperMethods.getUserLiked(filmId)))
-                .peek(film -> film.setGenres(helperMethods.getFilmGenres(film)))
-                .toList();
+        List<Film> films = jdbc.query(queryF, parameterSources, filmMapper);
         return films.isEmpty() ? Optional.empty() : Optional.ofNullable(films.getFirst());
     }
 
@@ -55,10 +50,7 @@ public class LikeDbRepository implements LikeRepository {
                 " WHERE f.film_id = :film_id";
         MapSqlParameterSource parameterSources = new MapSqlParameterSource()
                 .addValue("film_id", filmId);
-        List<Film> films = jdbc.query(queryF, parameterSources, filmMapper).stream()
-                .peek(film -> film.setUserLiked(helperMethods.getUserLiked(film.getId())))
-                .peek(film -> film.setGenres(helperMethods.getFilmGenres(film)))
-                .toList();
+        List<Film> films = jdbc.query(queryF, parameterSources, filmMapper);
         return films.isEmpty() ? Optional.empty() : Optional.ofNullable(films.getFirst());
     }
 
@@ -73,9 +65,6 @@ public class LikeDbRepository implements LikeRepository {
                 "LIMIT :count";
         MapSqlParameterSource parameterSource = new MapSqlParameterSource()
                 .addValue("count", count);
-        return jdbc.query(query, parameterSource, filmMapper).stream()
-                .peek(film -> film.setUserLiked(helperMethods.getUserLiked(film.getId())))
-                .peek(film -> film.setGenres(helperMethods.getFilmGenres(film)))
-                .toList();
+        return jdbc.query(query, parameterSource, filmMapper);
     }
 }

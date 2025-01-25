@@ -13,11 +13,11 @@ import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.Film.FilmDbRepository;
-import ru.yandex.practicum.filmorate.storage.Genre.GenreDbRepository;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbRepository;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbRepository;
 import ru.yandex.practicum.filmorate.storage.HelperMethods;
-import ru.yandex.practicum.filmorate.storage.MpaRating.MpaRatingDbRepository;
-import ru.yandex.practicum.filmorate.storage.User.UserDbRepository;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaRatingDbRepository;
+import ru.yandex.practicum.filmorate.storage.user.UserDbRepository;
 
 import java.time.Duration;
 import java.time.LocalDate;

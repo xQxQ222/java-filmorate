@@ -45,4 +45,8 @@ public class Film {
         userLiked.remove(user);
         rate = userLiked.size();
     }
+
+    public void addGenre(Genre genre) {
+        genres.add(genre);
+    }
 }

@@ -15,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
 public class User {
     private int id;
     @NonNull
