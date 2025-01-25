@@ -71,7 +71,7 @@ public class FilmService {
         film.setGenres(helperMethods.checkGenreAndMpa(film));
         Film updatedFilm = filmStorage.updateFilm(film);
         helperMethods.insertFilmGenres(updatedFilm);
-        updatedFilm.getGenres().clear();
+        updatedFilm.setGenres(new ArrayList<>());
         MpaRating mpa = helperMethods.getMpaRatingByFilm(updatedFilm.getId())
                 .orElseThrow(() -> new NotFoundException("Рейтинг МРА не найден в БД"));
         updatedFilm.setMpa(mpa);
