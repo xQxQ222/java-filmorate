@@ -2,28 +2,30 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.FriendException;
 import ru.yandex.practicum.filmorate.exception.EqualIdsException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.User.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.User.UserStorage;
+import ru.yandex.practicum.filmorate.storage.friends.FriendsRepository;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @Slf4j
 public class UserService {
 
     private final UserStorage userStorage;
+    private final FriendsRepository friendsRepository;
 
     @Autowired
-    public UserService(InMemoryUserStorage userStorage) {
+    public UserService(@Qualifier("dbUser") UserStorage userStorage, FriendsRepository friendsRepository) {
         this.userStorage = userStorage;
+        this.friendsRepository = friendsRepository;
     }
 
     public User addUser(User user) {
@@ -47,50 +49,46 @@ public class UserService {
     }
 
     public User getUserById(int userId) {
-        return userStorage.getUserById(userId);
+        return userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователя нет в базе данных"));
     }
 
     public User addFriend(int userId, int friendId) {
         if (userId == friendId) {
             throw new EqualIdsException("Пользователь не может добавить сам себя в друзья", userId);
         }
-        User user = userStorage.getUserById(userId);
-        User newFriend = userStorage.getUserById(friendId);
-        if (user.getFriends().contains(friendId)) {
-            throw new FriendException("Данные пользователи уже друзья", userId, friendId);
-        }
-        user.getFriends().add(friendId);
-        newFriend.getFriends().add(userId);
-        return user;
+        User user = userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден в БД"));
+        User friend = userStorage.getUserById(friendId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден в БД"));
+        return friendsRepository.beFriend(getUserById(userId), getUserById(friendId))
+                .orElseThrow(() -> new NotFoundException("Произошла ошибка при добавлении в друзья"));
     }
 
     public User deleteFriend(int userId, int friendId) {
         if (userId == friendId) {
             throw new EqualIdsException("Пользователь не может удалить сам себя из друзей", userId);
         }
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+        User user = friendsRepository.unfriendUser(getUserById(userId), getUserById(friendId))
+                .orElseThrow(() -> new NotFoundException("Пользователя нет в базе данных"));
         return user;
     }
 
     public List<User> getUserFriends(int userId) {
-        Set<Integer> userFriendsId = userStorage.getUserById(userId).getFriends();
-        return userFriendsId.stream()
-                .map(userStorage::getUserById).toList();
+        User user = userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден в БД"));
+        return friendsRepository.getUserFriends(userId);
     }
 
     public List<User> getCommonFriends(int userId, int otherId) {
         if (userId == otherId) {
             throw new EqualIdsException("Id пользователя совпадает с другим id", userId);
         }
-        Set<Integer> userFriends = userStorage.getUserById(userId).getFriends();
-        Set<Integer> friendFriends = userStorage.getUserById(otherId).getFriends();
-        return userFriends.stream()
-                .filter(friendFriends::contains)
-                .map(userStorage::getUserById)
-                .toList();
+        User user = userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден в БД"));
+        User otherUser = userStorage.getUserById(otherId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден в БД"));
+        return friendsRepository.getCommonFriend(userId, otherId);
     }
 
     private boolean isUserValid(User userToCheck) {

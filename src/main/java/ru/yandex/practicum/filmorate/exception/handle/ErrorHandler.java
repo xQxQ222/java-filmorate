@@ -5,10 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.exception.LikeFilmException;
-import ru.yandex.practicum.filmorate.exception.FriendException;
-import ru.yandex.practicum.filmorate.exception.EqualIdsException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.*;
 
 @Slf4j
 @RestControllerAdvice
@@ -32,7 +29,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ExceptionResponce handleNotFound(final NotFoundException e) {
         log.error(e.getMessage());
-        return new ExceptionResponce("Объект не найден в хранилище", e.getMessage());
+        return new ExceptionResponce("Объект не найден", e.getMessage());
     }
 
     @ExceptionHandler
@@ -40,5 +37,12 @@ public class ErrorHandler {
     public ExceptionResponce handleLikedFilm(final LikeFilmException e) {
         log.error("Ошибка при попытке лайкнуть / убрать лайк с фильма (id фильма: {}, id пользователя: {})", e.getFilmId(), e.getUserId());
         return new ExceptionResponce("Ошибка при попытке лайкнуть / убрать лайк с фильма", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionResponce handleValidate(final ValidationException e) {
+        log.error("Ошибка валидации: {}", e.getMessage());
+        return new ExceptionResponce("Произошла ошибка валидации", e.getMessage());
     }
 }
